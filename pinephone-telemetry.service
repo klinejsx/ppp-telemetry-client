@@ -1,0 +1,37 @@
+[Unit]
+Description=Pinephone Pro Telemetry Daemon
+Documentation=https://github.com/user/pinephone-telemetry
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+Group=root
+WorkingDirectory=/home/user/src/telemetry
+Environment="PATH=/root/.bun/bin:/usr/local/bin:/usr/bin:/bin"
+Environment="HOME=/root"
+ExecStart=/root/.bun/bin/bun run src/index.ts
+ExecStop=/bin/kill -TERM $MAINPID
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+# Security hardening
+NoNewPrivileges=false
+ProtectSystem=strict
+ProtectHome=read-only
+PrivateTmp=true
+ReadOnlyPaths=/
+ReadWritePaths=/tmp /var/log
+# Need access to sysfs and procfs for telemetry
+BindReadOnlyPaths=/sys /proc
+
+# Resource limits
+MemoryMax=128M
+CPUQuota=25%
+
+[Install]
+WantedBy=multi-user.target
+
